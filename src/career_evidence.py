@@ -86,9 +86,18 @@ def score_career(candidate):
         if any(x in comp for x in CONSULTING_COMPANIES):
             consulting_count += 1
             
+    has_strong_title = any(any(st in job.get("title", "").lower() for st in STRONG_TITLES) for job in history)
+    has_strong_title = has_strong_title or any(st in profile.get("current_title", "").lower() for st in STRONG_TITLES)
+    
+    keyword_hits = sum(1 for job in history for kw in EVIDENCE_KEYWORDS if kw in job.get("description", "").lower())
+    
     if product_count > 0:
-        score += (15.0 * product_count)
-        reasons.append(f"Product company experience ({product_count} roles)")
+        if has_strong_title or keyword_hits > 0:
+            score += (15.0 * product_count)
+            reasons.append(f"Relevant product company experience ({product_count} roles)")
+        else:
+            score += (5.0 * product_count)
+            reasons.append(f"Product company experience ({product_count} roles, but low AI relevance)")
         
     if total_jobs > 0 and consulting_count == total_jobs:
         score -= 30.0  # Penalty for entirely consulting

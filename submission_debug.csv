@@ -1,0 +1,51 @@
+candidate_id,career_score,production_score,behavior_score,availability_score,semantic_score,final_score,reasoning
+CAND_0000031,175.0,45.0,98.0,65.0,0.4567,81.8785,"Strong experience in ranking, retrieval, or recommendation systems. Demonstrated production ML deployment and evaluation experience. Strong recruiter engagement signals and activity. Favorable hiring availability (short notice period/flexible)."
+CAND_0000010,50.0,15.0,44.4,10.0,0.4654,34.5796,Solid technical background with relevant engineering experience.
+CAND_0000015,40.0,0.0,55.9,20.0,0.4931,33.2901,Solid technical background with relevant engineering experience.
+CAND_0000026,0.0,15.0,52.0,60.0,0.5367,21.8925,Favorable hiring availability (short notice period/flexible).
+CAND_0000045,-25.0,45.0,48.3,65.0,0.5806,14.6938,Demonstrated production ML deployment and evaluation experience. Favorable hiring availability (short notice period/flexible).
+CAND_0000033,-5.0,15.0,37.6,50.0,0.5320,9.6230,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000042,-20.0,15.0,43.8,80.0,0.4788,8.7129,Favorable hiring availability (short notice period/flexible).
+CAND_0000016,-30.0,15.0,68.2,45.0,0.4650,8.0119,Strong recruiter engagement signals and activity.
+CAND_0000009,-25.0,15.0,39.1,0.0,0.5368,7.5619,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000049,-30.0,15.0,44.7,10.0,0.5217,7.5086,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000017,-55.0,15.0,23.9,30.0,0.5588,7.3648,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000040,-20.0,15.0,43.3,20.0,0.4919,7.2065,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000038,25.0,0.0,70.8,50.0,0.5077,3.9519,Strong recruiter engagement signals and activity.
+CAND_0000018,25.0,0.0,49.0,10.0,0.5317,3.3262,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000014,30.0,0.0,37.0,20.0,0.5298,3.2684,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000043,35.0,0.0,25.5,20.0,0.5219,3.0255,Solid technical background with relevant engineering experience.
+CAND_0000001,30.0,0.0,68.8,45.0,0.4310,2.9955,Strong recruiter engagement signals and activity.
+CAND_0000048,20.0,0.0,57.6,10.0,0.4813,2.8088,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000032,20.0,0.0,52.1,30.0,0.4585,2.6761,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000035,25.0,0.0,27.2,45.0,0.4363,2.1896,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000023,15.0,0.0,74.4,60.0,0.5104,2.0185,Strong recruiter engagement signals and activity. Favorable hiring availability (short notice period/flexible).
+CAND_0000044,15.0,0.0,68.6,20.0,0.4984,1.6397,Strong recruiter engagement signals and activity.
+CAND_0000011,0.0,0.0,62.0,30.0,0.5144,1.6293,Strong recruiter engagement signals and activity.
+CAND_0000019,0.0,0.0,19.8,45.0,0.5518,1.5445,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000025,15.0,0.0,68.2,10.0,0.5188,1.1970,Strong recruiter engagement signals and activity.
+CAND_0000013,-30.0,0.0,61.3,50.0,0.5755,0.9517,Strong recruiter engagement signals and activity.
+CAND_0000020,-25.0,0.0,53.9,50.0,0.5590,0.8840,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000046,-30.0,0.0,54.7,70.0,0.5416,0.8798,Favorable hiring availability (short notice period/flexible).
+CAND_0000007,-25.0,0.0,47.4,80.0,0.5327,0.8671,Favorable hiring availability (short notice period/flexible).
+CAND_0000002,-55.0,0.0,55.3,45.0,0.5840,0.8438,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000024,-40.0,0.0,67.1,65.0,0.5108,0.7945,Strong recruiter engagement signals and activity. Favorable hiring availability (short notice period/flexible).
+CAND_0000027,-30.0,0.0,77.1,30.0,0.5014,0.7405,Strong recruiter engagement signals and activity.
+CAND_0000041,-50.0,0.0,49.8,40.0,0.5526,0.7243,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000037,-55.0,0.0,51.3,60.0,0.5152,0.6632,Favorable hiring availability (short notice period/flexible).
+CAND_0000029,-40.0,0.0,49.4,45.0,0.5090,0.6416,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000006,-20.0,0.0,37.5,20.0,0.5297,0.6405,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000039,-40.0,0.0,48.0,80.0,0.4741,0.6390,Favorable hiring availability (short notice period/flexible).
+CAND_0000021,-55.0,0.0,40.5,65.0,0.5909,0.6061,Favorable hiring availability (short notice period/flexible).
+CAND_0000022,-20.0,0.0,41.1,0.0,0.5200,0.5660,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000036,-25.0,0.0,50.9,35.0,0.4727,0.5614,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000008,-60.0,0.0,31.9,30.0,0.5450,0.5488,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000028,-60.0,0.0,41.4,55.0,0.4900,0.5057,Favorable hiring availability (short notice period/flexible).
+CAND_0000004,-45.0,0.0,31.6,30.0,0.5106,0.4969,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000030,-20.0,0.0,51.1,45.0,0.4257,0.4695,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000003,-60.0,0.0,42.9,10.0,0.5126,0.4405,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000012,-30.0,0.0,21.5,45.0,0.4710,0.4287,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000005,-60.0,0.0,41.9,80.0,0.4362,0.4237,Favorable hiring availability (short notice period/flexible).
+CAND_0000047,-30.0,0.0,35.6,20.0,0.4591,0.3824,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000034,-70.0,0.0,20.6,30.0,0.5024,0.3298,Candidate matches baseline requirements but lacks strong signals in key areas.
+CAND_0000050,-55.0,0.0,42.8,30.0,0.4416,0.3060,Candidate matches baseline requirements but lacks strong signals in key areas.
