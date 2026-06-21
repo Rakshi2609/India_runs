@@ -34,7 +34,7 @@ def main():
     jd_text = extract_jd_text("data/job_description.docx")
     jd_embedding = model.encode(jd_text, normalize_embeddings=True)
 
-    candidates_file = "data/sample_candidates.json"
+    candidates_file = "data/candidates.jsonl"
     if not os.path.exists(candidates_file):
         print(f"{candidates_file} not found.")
 
@@ -109,8 +109,8 @@ def main():
             final_score *= 0.5
             
         # Severe penalty for no AI/production evidence
-        if raw["production_raw"] == 0 and raw["career_raw"] < 40:
-            final_score *= 0.1
+        if raw["career_raw"] < 20 and raw["production_raw"] == 0:
+            final_score *= 0.25
             
         reasoning = generate_reasoning(raw)
         
@@ -127,9 +127,9 @@ def main():
     final_results.sort(key=lambda x: x["score"], reverse=True)
 
     print("=" * 120)
-    print("TOP 20 CANDIDATES")
+    print("TOP 100 CANDIDATES")
     print("=" * 120)
-    for r in final_results[:20]:
+    for r in final_results[:100]:
         print(f"[{r['score']:>6.1f}] {r['name']:<25} | {r['title'][:30]:<30} | CR: {r['career_raw']:>5.1f} | SM: {r['semantic_raw']:>4.2f}")
         print(f"         Reason: {r['reasoning']}")
 
@@ -138,16 +138,18 @@ def main():
     with open("submission.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["candidate_id", "score", "reasoning"])
-        for r in final_results:
+        for r in final_results[:100]:
             writer.writerow([r["candidate_id"], f"{r['score']:.4f}", r["reasoning"]])
             
     print("Writing submission_debug.csv...")
     with open("submission_debug.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["candidate_id", "career_score", "production_score", "behavior_score", "availability_score", "semantic_score", "final_score", "reasoning"])
-        for r in final_results:
+        writer.writerow(["candidate_id", "name", "title", "career_score", "production_score", "behavior_score", "availability_score", "semantic_score", "final_score", "reasoning"])
+        for r in final_results[:100]:
             writer.writerow([
                 r["candidate_id"], 
+                r["name"],
+                r["title"],
                 f"{r['career_raw']:.1f}", 
                 f"{next(x['production_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
                 f"{next(x['behavior_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
