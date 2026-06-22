@@ -1,5 +1,5 @@
 # Redrob Hackathon — Submission Metadata Template
-team_name: "Antigravity"
+team_name: "Vibecoderzz"
 
 primary_contact:
   name: "User"
@@ -14,7 +14,7 @@ team_members:
 github_repo: "https://github.com/Antigravity/Redrob-Hackathon"
 sandbox_link: "https://colab.research.google.com/drive/1example-redrob-ranker"
 
-reproduce_command: "python src/rank.py --candidates isnt/candidates.jsonl --out team_antigravity.csv"
+reproduce_command: "python src/rank.py --candidates isnt/candidates.jsonl --out team_vibecoderzz.csv"
 
 compute:
   platform: "Local Windows Box"
