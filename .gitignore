@@ -40,3 +40,7 @@ yarn-error.log*
 provided_materials/
 data/
 
+
+# Hackathon specific
+isnt/
+*.csv

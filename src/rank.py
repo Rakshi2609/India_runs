@@ -1,6 +1,7 @@
 import json
 import csv
 import os
+import argparse
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 
@@ -11,6 +12,7 @@ from production_score import score_production
 from candidate_text_builder import build_candidate_text
 from buzzword_penalty import calculate_buzzword_penalty
 from reasoning_generator import generate_reasoning
+from honeypot_filter import is_honeypot
 
 def extract_jd_text(jd_path):
     from docx import Document
@@ -27,139 +29,165 @@ def normalize(values):
     return [((v - min_val) / (max_val - min_val)) * 100.0 for v in values]
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--candidates", default="isnt/candidates.jsonl")
+    parser.add_argument("--out", default="submission.csv")
+    parser.add_argument("--limit", type=int, default=1000)
+    args = parser.parse_args()
+
     print("Loading model...")
     model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
     
     print("Loading JD...")
-    jd_text = extract_jd_text("data/job_description.docx")
+    jd_text = extract_jd_text("isnt/job_description.docx")
     jd_embedding = model.encode(jd_text, normalize_embeddings=True)
 
-    candidates_file = "data/candidates.jsonl"
-    if not os.path.exists(candidates_file):
-        print(f"{candidates_file} not found.")
-
-    print("Loading candidates...")
+    print(f"Loading up to {args.limit} candidates from {args.candidates}...")
     candidates = []
-    if candidates_file.endswith(".jsonl"):
-        with open(candidates_file) as f:
-            for line in f:
-                candidates.append(json.loads(line))
-    else:
-        with open(candidates_file) as f:
-            candidates = json.load(f)
+    honeypot_count = 0
+    with open(args.candidates, "r", encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            c = json.loads(line)
+            
+            # 1. HONEYPOT FILTERING
+            if is_honeypot(c):
+                honeypot_count += 1
+                continue
+                
+            candidates.append(c)
+            if args.limit > 0 and len(candidates) >= args.limit:
+                break
 
-    print(f"Loaded {len(candidates)} candidates.")
+    print(f"Loaded {len(candidates)} valid candidates. Filtered {honeypot_count} honeypots.")
 
-    print("Building candidate texts...")
-    candidate_texts = [build_candidate_text(c) for c in candidates]
-    
-    print("Encoding candidates...")
-    candidate_embeddings = model.encode(candidate_texts, batch_size=256, show_progress_bar=True, normalize_embeddings=True)
-
-    print("Calculating raw scores...")
-    raw_scores = []
-
-    for i, c in enumerate(candidates):
-        career_info = score_career(c)
-        career_raw = career_info["score"]
+    print("Calculating heuristic scores...")
+    heuristic_scores = []
+    for c in candidates:
+        career_raw = score_career(c)["score"]
         prod_raw = score_production(c)
-        behav_raw = score_behavioral(c)
+        behav_multiplier = score_behavioral(c)
         avail_raw = score_availability(c)
-        
-        sem_raw = float(cos_sim(jd_embedding, candidate_embeddings[i]))
-        
         penalty = calculate_buzzword_penalty(c, career_raw)
         
-        raw_scores.append({
-            "candidate_id": c["candidate_id"],
-            "name": c.get("profile", {}).get("anonymized_name", "Unknown"),
-            "title": c.get("profile", {}).get("current_title", "Unknown"),
+        heuristic_scores.append({
+            "candidate": c,
             "career_raw": career_raw,
             "production_raw": prod_raw,
-            "behavior_raw": behav_raw,
+            "behavior_raw": behav_multiplier,
             "availability_raw": avail_raw,
-            "semantic_raw": sem_raw,
             "penalty": penalty
         })
-
-    # Normalize
-    career_norms = normalize([x["career_raw"] for x in raw_scores])
-    prod_norms = normalize([x["production_raw"] for x in raw_scores])
-    behav_norms = normalize([x["behavior_raw"] for x in raw_scores])
-    avail_norms = normalize([x["availability_raw"] for x in raw_scores])
-    sem_norms = normalize([x["semantic_raw"] for x in raw_scores])
-
+        
+    print("Pre-filtering top candidates for semantic matching...")
+    # Normalize heuristic scores
+    c_norms = normalize([x["career_raw"] for x in heuristic_scores])
+    p_norms = normalize([x["production_raw"] for x in heuristic_scores])
+    a_norms = normalize([x["availability_raw"] for x in heuristic_scores])
+    
+    for i, item in enumerate(heuristic_scores):
+        base_h = (0.40 * c_norms[i] + 0.20 * p_norms[i] + 0.10 * a_norms[i]) * item["behavior_raw"] - item["penalty"]
+        
+        if item["career_raw"] < 0:
+            base_h -= 500
+        elif item["career_raw"] < 20:
+            base_h -= 200
+            
+        if item["production_raw"] < 20:
+            base_h -= 300  # JD says production experience is absolutely required
+            
+        yoe = item["candidate"].get("profile", {}).get("years_of_experience", 0)
+        if yoe > 12:
+            base_h -= 100  # Heavy penalty for being too senior (likely architect)
+        elif yoe < 4:
+            base_h -= 100  # Heavy penalty for being too junior
+            
+        item["pre_score"] = base_h
+        
+    heuristic_scores.sort(key=lambda x: x["pre_score"], reverse=True)
+    
+    # Take top 5000 candidates for semantic matching
+    top_candidates = heuristic_scores[:5000]
+    
+    print(f"Building texts for {len(top_candidates)} candidates...")
+    candidate_texts = [build_candidate_text(item["candidate"]) for item in top_candidates]
+    
+    print("Encoding candidates...")
+    candidate_embeddings = model.encode(candidate_texts, batch_size=128, show_progress_bar=True, normalize_embeddings=True)
+    
     print("Calculating final scores and reasoning...")
     final_results = []
     
-    for i, raw in enumerate(raw_scores):
-        final_score = (
-            0.35 * career_norms[i] +
-            0.20 * prod_norms[i] +
-            0.15 * behav_norms[i] +
-            0.10 * avail_norms[i] +
-            0.20 * sem_norms[i]
+    sem_raw_values = []
+    for i, item in enumerate(top_candidates):
+        sem_raw = float(cos_sim(jd_embedding, candidate_embeddings[i]))
+        sem_raw_values.append(sem_raw)
+        
+    sem_norms = normalize(sem_raw_values)
+    
+    # We also need to re-normalize the other scores for the top 5000 candidates to combine correctly with semantic
+    c_norms_top = normalize([x["career_raw"] for x in top_candidates])
+    p_norms_top = normalize([x["production_raw"] for x in top_candidates])
+    a_norms_top = normalize([x["availability_raw"] for x in top_candidates])
+    
+    for i, item in enumerate(top_candidates):
+        base_score = (
+            0.40 * c_norms_top[i] +
+            0.20 * p_norms_top[i] +
+            0.10 * a_norms_top[i] +
+            0.30 * sem_norms[i]
         )
         
-        final_score -= raw["penalty"]
+        final_score = base_score * item["behavior_raw"]
+        final_score -= item["penalty"]
         
-        if raw["career_raw"] < 0:
-            final_score *= 0.25
-        elif raw["career_raw"] < 20:
-            final_score *= 0.5
+        if item["career_raw"] < 0:
+            final_score -= 500
+        elif item["career_raw"] < 20:
+            final_score -= 200
             
-        # Severe penalty for no AI/production evidence
-        if raw["career_raw"] < 20 and raw["production_raw"] == 0:
-            final_score *= 0.25
+        if item["production_raw"] < 20:
+            final_score -= 300
             
-        reasoning = generate_reasoning(raw)
+        yoe = item["candidate"].get("profile", {}).get("years_of_experience", 0)
+        if yoe > 12:
+            final_score -= 100
+        elif yoe < 4:
+            final_score -= 100
+            
+        raw = {
+            "candidate_id": item["candidate"]["candidate_id"],
+            "career_raw": item["career_raw"],
+            "production_raw": item["production_raw"],
+            "behavior_raw": item["behavior_raw"],
+            "availability_raw": item["availability_raw"],
+            "semantic_raw": sem_raw_values[i],
+            "penalty": item["penalty"]
+        }
+        
+        reasoning = generate_reasoning(item["candidate"], raw)
         
         final_results.append({
             "candidate_id": raw["candidate_id"],
-            "name": raw["name"],
-            "title": raw["title"],
-            "career_raw": raw["career_raw"],
-            "semantic_raw": raw["semantic_raw"],
             "score": final_score,
             "reasoning": reasoning
         })
 
-    final_results.sort(key=lambda x: x["score"], reverse=True)
+    # 3. DETERMINISTIC SORTING & TIE-BREAKING
+    final_results.sort(key=lambda x: (-x["score"], x["candidate_id"]))
+    top_100 = final_results[:100]
 
-    print("=" * 120)
-    print("TOP 100 CANDIDATES")
-    print("=" * 120)
-    for r in final_results[:100]:
-        print(f"[{r['score']:>6.1f}] {r['name']:<25} | {r['title'][:30]:<30} | CR: {r['career_raw']:>5.1f} | SM: {r['semantic_raw']:>4.2f}")
-        print(f"         Reason: {r['reasoning']}")
-
-    # Write CSV
-    print("Writing submission.csv...")
-    with open("submission.csv", "w", newline="") as f:
+    # Write CSV with exact format
+    print(f"Writing {args.out}...")
+    with open(args.out, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
-        writer.writerow(["candidate_id", "score", "reasoning"])
-        for r in final_results[:100]:
-            writer.writerow([r["candidate_id"], f"{r['score']:.4f}", r["reasoning"]])
+        writer.writerow(["candidate_id", "rank", "score", "reasoning"])
+        for rank_idx, r in enumerate(top_100, start=1):
+            writer.writerow([r["candidate_id"], rank_idx, f"{r['score']:.4f}", r["reasoning"]])
             
-    print("Writing submission_debug.csv...")
-    with open("submission_debug.csv", "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["candidate_id", "name", "title", "career_score", "production_score", "behavior_score", "availability_score", "semantic_score", "final_score", "reasoning"])
-        for r in final_results[:100]:
-            writer.writerow([
-                r["candidate_id"], 
-                r["name"],
-                r["title"],
-                f"{r['career_raw']:.1f}", 
-                f"{next(x['production_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
-                f"{next(x['behavior_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
-                f"{next(x['availability_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
-                f"{r['semantic_raw']:.4f}", 
-                f"{r['score']:.4f}", 
-                r["reasoning"]
-            ])
-
-    print("Done! submission.csv and submission_debug.csv generated.")
+    print("Done! Validating submission...")
+    os.system(f"python isnt/validate_submission.py {args.out}")
 
 if __name__ == "__main__":
     main()
