@@ -1,0 +1,44 @@
+# Redrob Hackathon — Submission Metadata Template
+team_name: "Antigravity"
+
+primary_contact:
+  name: "User"
+  email: "user@example.com"
+  phone: "+91-0000000000"
+
+team_members:
+  - name: "User"
+    email: "user@example.com"
+    role: "ML Engineer"
+
+github_repo: "https://github.com/Antigravity/Redrob-Hackathon"
+sandbox_link: "https://colab.research.google.com/drive/1example-redrob-ranker"
+
+reproduce_command: "python src/rank.py --candidates isnt/candidates.jsonl --out team_antigravity.csv"
+
+compute:
+  platform: "Local Windows Box"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11"
+  os: "Windows 11"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: false
+  pre_computation_time_minutes: 0
+
+ai_tools_used:
+  - "Gemini"
+
+ai_usage_summary: |
+  Used Gemini as an autonomous coding assistant to write the ranking scripts, update reasoning generators, format the final output, and validate the submission according to the provided specification.
+
+methodology_summary: |
+  Rule-based ranker using semantic alignment and explicit reasoning capture. Uses sentence-transformers (all-MiniLM-L6-v2) for JD-to-candidate semantic similarity. The final score is a weighted aggregation of Semantic Alignment (30%), Career Relevance (40%), Production Experience (20%), and Availability (10%), modified by a behavioral engagement multiplier and penalized for buzzword stuffing without substance. Honeypots are filtered upfront.
+
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
