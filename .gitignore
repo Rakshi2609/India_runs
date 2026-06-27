@@ -4,7 +4,6 @@ node_modules/
 .pnp.js
 venv/
 env/
-.env
 .venv/
 __pycache__/
 *.pyc
@@ -20,7 +19,6 @@ out/
 .DS_Store
 Thumbs.db
 .idea/
-.vscode/
 *.suo
 *.ntvs*
 *.njsproj
@@ -40,3 +38,4 @@ yarn-error.log*
 provided_materials/
 data/
 
+config.bat
