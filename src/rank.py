@@ -2,10 +2,12 @@ import json
 import csv
 import os
 import argparse
-from sentence_transformers import SentenceTransformer
-from sentence_transformers.util import cos_sim
+from multiprocessing import Pool, cpu_count
+from tqdm import tqdm
+
 
 from career_evidence import score_career
+from technical_fit import score_technical_fit
 from behavioral_score import score_behavioral
 from availability_score import score_availability
 from production_score import score_production
@@ -28,11 +30,40 @@ def normalize(values):
         return [0.0] * len(values)
     return [((v - min_val) / (max_val - min_val)) * 100.0 for v in values]
 
+def process_line(line):
+    line = line.strip()
+    if not line:
+        return None
+    try:
+        c = json.loads(line)
+    except Exception:
+        return None
+        
+    if is_honeypot(c):
+        return None
+        
+    career_raw = score_career(c)["score"]
+    tech_raw = score_technical_fit(c)
+    prod_raw = score_production(c)
+    behav_multiplier = score_behavioral(c)
+    avail_raw = score_availability(c)
+    penalty = calculate_buzzword_penalty(c, career_raw)
+    
+    return {
+        "candidate": c,
+        "career_raw": career_raw,
+        "technical_raw": tech_raw,
+        "production_raw": prod_raw,
+        "behavior_raw": behav_multiplier,
+        "availability_raw": avail_raw,
+        "penalty": penalty
+    }
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidates", default="isnt/candidates.jsonl")
     parser.add_argument("--out", default="submission.csv")
-    parser.add_argument("--limit", type=int, default=1000)
+    parser.add_argument("--limit", type=int, default=-1)
     args = parser.parse_args()
 
     print("Loading model...")
@@ -42,52 +73,63 @@ def main():
     jd_text = extract_jd_text("isnt/job_description.docx")
     jd_embedding = model.encode(jd_text, normalize_embeddings=True)
 
-    print(f"Loading up to {args.limit} candidates from {args.candidates}...")
-    candidates = []
-    honeypot_count = 0
-    with open(args.candidates, "r", encoding="utf-8") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            c = json.loads(line)
-            
-            # 1. HONEYPOT FILTERING
-            if is_honeypot(c):
-                honeypot_count += 1
-                continue
-                
-            candidates.append(c)
-            if args.limit > 0 and len(candidates) >= args.limit:
-                break
+    print(f"Reading candidates from {args.candidates}...")
+    lines = []
+    
+    # Auto-detect if file is JSON list or JSONL
+    is_json_list = args.candidates.lower().endswith(".json")
+    
+    if is_json_list:
+        with open(args.candidates, "r", encoding="utf-8") as f:
+            candidates_list = json.load(f)
+            # Serialize each to JSON string to unify interface
+            lines = [json.dumps(c) for c in candidates_list]
+    else:
+        with open(args.candidates, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    lines.append(line)
+                    if args.limit > 0 and len(lines) >= args.limit:
+                        break
 
-    print(f"Loaded {len(candidates)} valid candidates. Filtered {honeypot_count} honeypots.")
+    if args.limit > 0 and len(lines) > args.limit:
+        lines = lines[:args.limit]
 
-    print("Calculating heuristic scores...")
+    print(f"Scoring {len(lines)} candidates in parallel...")
     heuristic_scores = []
-    for c in candidates:
-        career_raw = score_career(c)["score"]
-        prod_raw = score_production(c)
-        behav_multiplier = score_behavioral(c)
-        avail_raw = score_availability(c)
-        penalty = calculate_buzzword_penalty(c, career_raw)
+    honeypot_count = 0
+    
+    # Run multiprocessing on Windows safely
+    chunksize = max(1, len(lines) // (cpu_count() * 4)) if len(lines) > 100 else 1
+    with Pool(cpu_count()) as pool:
+        results = list(tqdm(pool.imap(process_line, lines, chunksize=chunksize), total=len(lines), desc="Scoring candidates"))
         
-        heuristic_scores.append({
-            "candidate": c,
-            "career_raw": career_raw,
-            "production_raw": prod_raw,
-            "behavior_raw": behav_multiplier,
-            "availability_raw": avail_raw,
-            "penalty": penalty
-        })
-        
+    for r in results:
+        if r is None:
+            honeypot_count += 1
+        else:
+            heuristic_scores.append(r)
+            
+    print(f"Loaded {len(heuristic_scores)} valid candidates. Filtered {honeypot_count} honeypots.")
+    
+    if not heuristic_scores:
+        print("No valid candidates found!")
+        return
+
     print("Pre-filtering top candidates for semantic matching...")
     # Normalize heuristic scores
     c_norms = normalize([x["career_raw"] for x in heuristic_scores])
+    t_norms = normalize([x["technical_raw"] for x in heuristic_scores])
     p_norms = normalize([x["production_raw"] for x in heuristic_scores])
     a_norms = normalize([x["availability_raw"] for x in heuristic_scores])
     
     for i, item in enumerate(heuristic_scores):
-        base_h = (0.40 * c_norms[i] + 0.20 * p_norms[i] + 0.10 * a_norms[i]) * item["behavior_raw"] - item["penalty"]
+        base_h = (
+            0.30 * c_norms[i] +
+            0.30 * t_norms[i] +
+            0.25 * p_norms[i] +
+            0.15 * a_norms[i]
+        ) * item["behavior_raw"] - item["penalty"]
         
         if item["career_raw"] < 0:
             base_h -= 500
@@ -107,8 +149,9 @@ def main():
         
     heuristic_scores.sort(key=lambda x: x["pre_score"], reverse=True)
     
-    # Take top 5000 candidates for semantic matching
-    top_candidates = heuristic_scores[:5000]
+    # Take top 5000 candidates for semantic matching (or all if we have fewer)
+    top_n = min(5000, len(heuristic_scores))
+    top_candidates = heuristic_scores[:top_n]
     
     print(f"Building texts for {len(top_candidates)} candidates...")
     candidate_texts = [build_candidate_text(item["candidate"]) for item in top_candidates]
@@ -126,17 +169,19 @@ def main():
         
     sem_norms = normalize(sem_raw_values)
     
-    # We also need to re-normalize the other scores for the top 5000 candidates to combine correctly with semantic
+    # We also need to re-normalize the other scores for the top candidates to combine correctly with semantic
     c_norms_top = normalize([x["career_raw"] for x in top_candidates])
+    t_norms_top = normalize([x["technical_raw"] for x in top_candidates])
     p_norms_top = normalize([x["production_raw"] for x in top_candidates])
     a_norms_top = normalize([x["availability_raw"] for x in top_candidates])
     
     for i, item in enumerate(top_candidates):
         base_score = (
-            0.40 * c_norms_top[i] +
-            0.20 * p_norms_top[i] +
+            0.25 * c_norms_top[i] +
+            0.25 * t_norms_top[i] +
+            0.15 * p_norms_top[i] +
             0.10 * a_norms_top[i] +
-            0.30 * sem_norms[i]
+            0.25 * sem_norms[i]
         )
         
         final_score = base_score * item["behavior_raw"]
@@ -168,17 +213,21 @@ def main():
         
         reasoning = generate_reasoning(item["candidate"], raw)
         
+        # Round the score to 4 decimal places before appending for deterministic tie-breaker sorting
+        rounded_score = round(final_score, 4)
+        
         final_results.append({
             "candidate_id": raw["candidate_id"],
-            "score": final_score,
+            "score": rounded_score,
             "reasoning": reasoning
         })
 
-    # 3. DETERMINISTIC SORTING & TIE-BREAKING
+    # DETERMINISTIC SORTING & TIE-BREAKING
+    # Sort: score descending, then candidate_id ascending for ties (crucial for validator check!)
     final_results.sort(key=lambda x: (-x["score"], x["candidate_id"]))
     top_100 = final_results[:100]
 
-    # Write CSV with exact format
+    # Write CSV with exact format required by spec
     print(f"Writing {args.out}...")
     with open(args.out, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -187,6 +236,7 @@ def main():
             writer.writerow([r["candidate_id"], rank_idx, f"{r['score']:.4f}", r["reasoning"]])
             
     print("Done! Validating submission...")
+    # Execute validator python script
     os.system(f"python isnt/validate_submission.py {args.out}")
 
 if __name__ == "__main__":

@@ -34,7 +34,7 @@ ai_usage_summary: |
   Used Gemini as an autonomous coding assistant to write the ranking scripts, update reasoning generators, format the final output, and validate the submission according to the provided specification.
 
 methodology_summary: |
-  Rule-based ranker using semantic alignment and explicit reasoning capture. Uses sentence-transformers (all-MiniLM-L6-v2) for JD-to-candidate semantic similarity. The final score is a weighted aggregation of Semantic Alignment (30%), Career Relevance (40%), Production Experience (20%), and Availability (10%), modified by a behavioral engagement multiplier and penalized for buzzword stuffing without substance. Honeypots are filtered upfront.
+  Rule-based ranker using semantic alignment and explicit reasoning capture. Uses sentence-transformers (all-MiniLM-L6-v2) for JD-to-candidate semantic similarity. The final score is a weighted aggregation of Technical Fit (25%), Semantic Alignment (25%), Career Relevance (25%), Production Experience (15%), and Availability (10%), modified by a behavioral engagement multiplier and penalized for buzzword stuffing without substance. Advanced honeypots are filtered upfront. Ties are resolved by sorting candidate IDs in ascending order.
 
 declarations:
   read_submission_spec: true
