@@ -1,3 +1,4 @@
+import utils.session
 from docx import Document
 import sys
 
