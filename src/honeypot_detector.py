@@ -18,9 +18,10 @@ def detect_honeypot(candidate: dict) -> float:
     total_career_months = sum(j.get("duration_months", 0) for j in career)
     total_career_years = total_career_months / 12.0
     
-    # Allow for overlapping jobs (e.g. concurrent roles, consulting),
-    # but if the resume lists more than double the claimed years, it's fake.
-    if total_career_years > (yoe * 2) and yoe > 0:
+    # Allow for overlapping jobs or gaps, but penalize severe mismatches:
+    # 1. Listed job history is more than double the claimed years.
+    # 2. Listed job history is less than half the claimed years.
+    if yoe > 0 and (total_career_years > (yoe * 2.0) or total_career_years < (yoe * 0.5)):
         fraud_signals += 2  # timeline doesn't add up
     
     # --- Perfect assessment scores across many skills ---
