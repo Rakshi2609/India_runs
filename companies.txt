@@ -1,0 +1,22 @@
+================================================================================
+COMPANIES DISTRIBUTION
+================================================================================
+10 Wipro
+4 Wayne Enterprises
+3 TCS
+3 Dunder Mifflin
+3 Stark Industries
+3 Globex Inc
+3 Infosys
+3 Acme Corp
+3 Hooli
+3 Initech
+3 Swiggy
+2 Tech Mahindra
+1 Mindtree
+1 Ola
+1 Pied Piper
+1 Zomato
+1 Razorpay
+1 Cognizant
+1 CRED

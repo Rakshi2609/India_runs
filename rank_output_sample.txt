@@ -1,0 +1,54 @@
+Loading model...
+Loading JD...
+Loading candidates...
+Loaded 50 candidates.
+Building candidate texts...
+Encoding candidates...
+Calculating raw scores...
+Calculating final scores and reasoning...
+========================================================================================================================
+TOP 20 CANDIDATES
+========================================================================================================================
+[  81.9] Ela Singh                 | Recommendation Systems Enginee | CR: 175.0 | SM: 0.46
+         Reason: Strong experience in ranking, retrieval, or recommendation systems. Demonstrated production ML deployment and evaluation experience. Strong recruiter engagement signals and activity. Favorable hiring availability (short notice period/flexible).
+[  45.3] Aarav Sen                 | Cloud Engineer                 | CR:  35.0 | SM: 0.52
+         Reason: Solid technical background with relevant engineering experience. Demonstrated production ML deployment and evaluation experience.
+[  43.3] Rahul Agarwal             | Software Engineer              | CR:  40.0 | SM: 0.49
+         Reason: Solid technical background with relevant engineering experience.
+[  38.3] Vivaan Reddy              | Frontend Engineer              | CR:  25.0 | SM: 0.53
+         Reason: Candidate matches baseline requirements but lacks strong signals in key areas.
+[  38.1] Vihaan Saxena             | Mobile Developer               | CR:  20.0 | SM: 0.48
+         Reason: Candidate matches baseline requirements but lacks strong signals in key areas.
+[  37.9] Aarav Kapoor              | Data Engineer                  | CR:  50.0 | SM: 0.47
+         Reason: Solid technical background with relevant engineering experience.
+[  37.7] Atharv Joshi              | Frontend Engineer              | CR:  30.0 | SM: 0.53
+         Reason: Candidate matches baseline requirements but lacks strong signals in key areas.
+[  23.6] Neha Rao                  | Graphic Designer               | CR:   0.0 | SM: 0.54
+         Reason: Favorable hiring availability (short notice period/flexible).
+[  22.7] Kavya Nair                | Software Engineer              | CR:  15.0 | SM: 0.51
+         Reason: Strong recruiter engagement signals and activity. Favorable hiring availability (short notice period/flexible).
+[  20.4] Myra Mishra               | Project Manager                | CR:   0.0 | SM: 0.55
+         Reason: Candidate matches baseline requirements but lacks strong signals in key areas.
+[  18.8] Deepak Desai              | QA Engineer                    | CR:   0.0 | SM: 0.51
+         Reason: Strong recruiter engagement signals and activity.
+[  17.0] Anika Kumar               | Frontend Engineer              | CR:  15.0 | SM: 0.52
+         Reason: Strong recruiter engagement signals and activity.
+[  14.7] Vikram Mittal             | Project Manager                | CR: -25.0 | SM: 0.58
+         Reason: Demonstrated production ML deployment and evaluation experience. Favorable hiring availability (short notice period/flexible).
+[  12.2] Saanvi Sethi              | Operations Manager             | CR: -55.0 | SM: 0.58
+         Reason: Demonstrated production ML deployment and evaluation experience.
+[  10.1] Aditya Iyengar            | Mechanical Engineer            | CR: -25.0 | SM: 0.56
+         Reason: Candidate matches baseline requirements but lacks strong signals in key areas.
+[   9.9] Vihaan Bose               | Civil Engineer                 | CR: -25.0 | SM: 0.53
+         Reason: Favorable hiring availability (short notice period/flexible).
+[   9.5] Riya Mukherjee            | HR Manager                     | CR: -20.0 | SM: 0.48
+         Reason: Favorable hiring availability (short notice period/flexible).
+[   9.4] Ananya Bose               | Project Manager                | CR: -25.0 | SM: 0.47
+         Reason: Demonstrated production ML deployment and evaluation experience.
+[   9.2] Shreya Nair               | Graphic Designer               | CR:  -5.0 | SM: 0.53
+         Reason: Candidate matches baseline requirements but lacks strong signals in key areas.
+[   9.2] Rajesh Arora              | HR Manager                     | CR: -40.0 | SM: 0.51
+         Reason: Strong recruiter engagement signals and activity. Favorable hiring availability (short notice period/flexible).
+Writing submission.csv...
+Writing submission_debug.csv...
+Done! submission.csv and submission_debug.csv generated.

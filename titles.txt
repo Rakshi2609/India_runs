@@ -1,0 +1,25 @@
+================================================================================
+TITLES DISTRIBUTION
+================================================================================
+5 Operations Manager
+5 Business Analyst
+5 Mechanical Engineer
+5 Project Manager
+4 Frontend Engineer
+3 Marketing Manager
+3 Accountant
+2 Customer Support
+2 Civil Engineer
+2 Software Engineer
+2 HR Manager
+2 Graphic Designer
+1 Backend Engineer
+1 Data Engineer
+1 QA Engineer
+1 DevOps Engineer
+1 Recommendation Systems Engineer
+1 .NET Developer
+1 Full Stack Developer
+1 Java Developer
+1 Cloud Engineer
+1 Mobile Developer

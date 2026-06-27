@@ -1,0 +1,28 @@
+Loading model...
+Loading JD...
+Loading candidates...
+Building candidate texts...
+Encoding candidates...
+====================================================================================================
+Candidate                 | Title                          | Career   | Semantic | Penalty  | Total
+----------------------------------------------------------------------------------------------------
+Ela Singh                 | Recommendation Systems Enginee |    175.0 |     0.46 |      0.0 |     81.9
+Aarav Sen                 | Cloud Engineer                 |     45.0 |     0.52 |      0.0 |     46.7
+Anika Kumar               | Frontend Engineer              |     25.0 |     0.52 |      0.0 |     45.4
+Rahul Agarwal             | Software Engineer              |     50.0 |     0.49 |      0.0 |     44.7
+Myra Trivedi              | Java Developer                 |     35.0 |     0.51 |      0.0 |     40.9
+Vihaan Saxena             | Mobile Developer               |     30.0 |     0.48 |      0.0 |     39.5
+Atharv Joshi              | Frontend Engineer              |     40.0 |     0.53 |      0.0 |     39.1
+Vivaan Reddy              | Frontend Engineer              |     25.0 |     0.53 |      0.0 |     38.3
+Aarav Kapoor              | Data Engineer                  |     50.0 |     0.47 |      0.0 |     37.9
+Ira Vora                  | Backend Engineer               |     30.0 |     0.43 |      0.0 |     30.0
+Pranav Agarwal            | .NET Developer                 |     20.0 |     0.46 |      0.0 |     26.8
+Neha Rao                  | Graphic Designer               |      0.0 |     0.54 |      0.0 |     23.6
+Kavya Nair                | Software Engineer              |     15.0 |     0.51 |      0.0 |     22.7
+Vikram Verma              | Full Stack Developer           |     25.0 |     0.44 |      0.0 |     21.9
+Myra Mishra               | Project Manager                |      0.0 |     0.55 |      0.0 |     20.4
+Deepak Desai              | QA Engineer                    |      0.0 |     0.51 |      0.0 |     18.8
+Vihaan Naidu              | Frontend Engineer              |     15.0 |     0.50 |      0.0 |     16.4
+Vikram Mittal             | Project Manager                |    -25.0 |     0.58 |      0.0 |     14.7
+Saanvi Sethi              | Operations Manager             |    -55.0 |     0.58 |      0.0 |     12.2
+Aditya Iyengar            | Mechanical Engineer            |    -25.0 |     0.56 |      0.0 |     10.1
