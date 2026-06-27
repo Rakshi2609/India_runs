@@ -11,6 +11,7 @@ from production_score import score_production
 from candidate_text_builder import build_candidate_text
 from buzzword_penalty import calculate_buzzword_penalty
 from reasoning_generator import generate_reasoning
+from honeypot_detector import detect_honeypot
 
 def extract_jd_text(jd_path):
     from docx import Document
@@ -50,11 +51,21 @@ def main():
 
     print(f"Loaded {len(candidates)} candidates.")
 
-    print("Building candidate texts...")
-    candidate_texts = [build_candidate_text(c) for c in candidates]
+    import numpy as np
     
-    print("Encoding candidates...")
-    candidate_embeddings = model.encode(candidate_texts, batch_size=256, show_progress_bar=True, normalize_embeddings=True)
+    embeddings_cache_file = "data/candidate_embeddings.npy"
+    if os.path.exists(embeddings_cache_file):
+        print("Loading cached embeddings...")
+        candidate_embeddings = np.load(embeddings_cache_file)
+    else:
+        print("Building candidate texts...")
+        candidate_texts = [build_candidate_text(c) for c in candidates]
+        
+        print("Encoding candidates...")
+        candidate_embeddings = model.encode(candidate_texts, batch_size=256, show_progress_bar=True, normalize_embeddings=True)
+        
+        print("Saving embeddings to cache...")
+        np.save(embeddings_cache_file, candidate_embeddings)
 
     print("Calculating raw scores...")
     raw_scores = []
@@ -69,6 +80,7 @@ def main():
         sem_raw = float(cos_sim(jd_embedding, candidate_embeddings[i]))
         
         penalty = calculate_buzzword_penalty(c, career_raw)
+        fraud_score = detect_honeypot(c)
         
         raw_scores.append({
             "candidate_id": c["candidate_id"],
@@ -79,7 +91,8 @@ def main():
             "behavior_raw": behav_raw,
             "availability_raw": avail_raw,
             "semantic_raw": sem_raw,
-            "penalty": penalty
+            "penalty": penalty,
+            "fraud_score": fraud_score
         })
 
     # Normalize
@@ -111,6 +124,12 @@ def main():
         # Severe penalty for no AI/production evidence
         if raw["career_raw"] < 20 and raw["production_raw"] == 0:
             final_score *= 0.25
+            
+        # Honeypot penalty
+        if raw["fraud_score"] > 0.5:
+            final_score *= 0.1
+        elif raw["fraud_score"] > 0.3:
+            final_score *= 0.5
             
         reasoning = generate_reasoning(raw)
         
@@ -144,7 +163,7 @@ def main():
     print("Writing submission_debug.csv...")
     with open("submission_debug.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["candidate_id", "name", "title", "career_score", "production_score", "behavior_score", "availability_score", "semantic_score", "final_score", "reasoning"])
+        writer.writerow(["candidate_id", "name", "title", "career_score", "production_score", "behavior_score", "availability_score", "semantic_score", "fraud_score", "final_score", "reasoning"])
         for r in final_results[:100]:
             writer.writerow([
                 r["candidate_id"], 
@@ -154,7 +173,8 @@ def main():
                 f"{next(x['production_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
                 f"{next(x['behavior_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
                 f"{next(x['availability_raw'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.1f}",
-                f"{r['semantic_raw']:.4f}", 
+                f"{r['semantic_raw']:.4f}",
+                f"{next(x['fraud_score'] for x in raw_scores if x['candidate_id'] == r['candidate_id']):.2f}",
                 f"{r['score']:.4f}", 
                 r["reasoning"]
             ])
