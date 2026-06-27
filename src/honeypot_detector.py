@@ -16,7 +16,11 @@ def detect_honeypot(candidate: dict) -> float:
     # We can't check founding dates, but we can check duration vs YOE
     yoe = profile.get("years_of_experience", 0)
     total_career_months = sum(j.get("duration_months", 0) for j in career)
-    if total_career_months > 0 and yoe * 12 < total_career_months * 0.5:
+    total_career_years = total_career_months / 12.0
+    
+    # Allow for overlapping jobs (e.g. concurrent roles, consulting),
+    # but if the resume lists more than double the claimed years, it's fake.
+    if total_career_years > (yoe * 2) and yoe > 0:
         fraud_signals += 2  # timeline doesn't add up
     
     # --- Perfect assessment scores across many skills ---
