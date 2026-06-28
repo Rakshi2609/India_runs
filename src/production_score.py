@@ -14,6 +14,11 @@ def score_production(candidate):
         "ndcg",
         "mrr",
         "map",
+        "vector db",
+        "pinecone",
+        "qdrant",
+        "weaviate",
+        "milvus"
     ]
 
     score = 0.0

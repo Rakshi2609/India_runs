@@ -15,6 +15,22 @@ def score_behavioral(candidate):
 
     if sig.get("open_to_work_flag"):
         multiplier *= 1.05
+        
+    # Additional signals from test branch + github
+    interview_completion = sig.get("interview_completion_rate", -1)
+    if interview_completion > 0.9:
+        multiplier *= 1.1
+    elif 0 <= interview_completion < 0.5:
+        multiplier *= 0.8
+
+    if sig.get("saved_by_recruiters", 0) > 10:
+        multiplier *= 1.1
+        
+    github_score = sig.get("github_activity_score", -1)
+    if github_score > 80:
+        multiplier *= 1.1
+    elif github_score == 0:
+        multiplier *= 0.9
 
     # Activity signals
     from datetime import datetime
