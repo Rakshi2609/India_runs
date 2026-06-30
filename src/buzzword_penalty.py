@@ -6,7 +6,7 @@ def calculate_buzzword_penalty(candidate, career_raw_score):
     
     has_buzzword = any(any(bw in s for bw in buzzwords) for s in skills)
     
-    if has_buzzword:
+    if has_buzzword and career_raw_score < 20.0:
         penalty += 100.0
         
     return penalty
