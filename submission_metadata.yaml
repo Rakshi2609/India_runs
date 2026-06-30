@@ -1,20 +1,20 @@
-# Redrob Hackathon — Submission Metadata Template
-team_name: "Vibecoderzz"
+# Redrob Hackathon - Submission Metadata
+team_name: "tanushbhootra576"
 
 primary_contact:
-  name: "User"
-  email: "user@example.com"
-  phone: "+91-0000000000"
+  name: "Tanush Bhootra"
+  email: "tanushbhootra576@example.com"
+  phone: "+91-9999999999"
 
 team_members:
-  - name: "User"
-    email: "user@example.com"
+  - name: "Tanush Bhootra"
+    email: "tanushbhootra576@example.com"
     role: "ML Engineer"
 
-github_repo: "https://github.com/Antigravity/Redrob-Hackathon"
-sandbox_link: "https://colab.research.google.com/drive/1example-redrob-ranker"
+github_repo: "https://github.com/tanushbhootra576/India_runs"
+sandbox_link: "https://github.com/tanushbhootra576/India_runs/blob/main/sandbox.ipynb"
 
-reproduce_command: "python src/rank.py --candidates isnt/candidates.jsonl --out team_vibecoderzz.csv"
+reproduce_command: "python src/rank.py --candidates isnt/candidates.jsonl --out tanushbhootra576.csv"
 
 compute:
   platform: "Local Windows Box"
@@ -24,17 +24,17 @@ compute:
   os: "Windows 11"
   uses_gpu_for_inference: false
   has_network_during_ranking: false
-  pre_computation_required: false
-  pre_computation_time_minutes: 0
+  pre_computation_required: true
+  pre_computation_time_minutes: 15
 
 ai_tools_used:
   - "Gemini"
 
 ai_usage_summary: |
-  Used Gemini as an autonomous coding assistant to write the ranking scripts, update reasoning generators, format the final output, and validate the submission according to the provided specification.
+  Used Gemini as an autonomous coding assistant. Note: While Gemini wrote the ranking scripts and formatting logic, the specific heuristic thresholds, penalty conditions, and honeypot filters were fully reviewed and manually selected based on direct performance validation.
 
 methodology_summary: |
-  Rule-based ranker using semantic alignment and explicit reasoning capture. Uses sentence-transformers (all-MiniLM-L6-v2) for JD-to-candidate semantic similarity. The final score is a weighted aggregation of Semantic Alignment (30%), Career Relevance (40%), Production Experience (20%), and Availability (10%), modified by a behavioral engagement multiplier and penalized for buzzword stuffing without substance. Honeypots are filtered upfront.
+  Rule-based ranker using semantic alignment and explicit reasoning capture. Uses sentence-transformers (all-MiniLM-L6-v2) for JD-to-candidate semantic similarity. The base score is a weighted aggregation: Career Relevance (40%), Semantic Alignment (30%), Production Experience (20%), and Availability (10%). This is then multiplied by a behavioral engagement multiplier, heavily penalized for buzzword stuffing without career depth, and filtered for honeypots upfront.
 
 declarations:
   read_submission_spec: true

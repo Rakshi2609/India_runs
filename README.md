@@ -58,11 +58,11 @@ The final score is a weighted aggregation of normalized sub-scores.
 
 | Scoring Module | Weight | Metric Measured | Penalty Condition |
 | :--- | :---: | :--- | :--- |
-| **Semantic Alignment** | 20% | Cosine similarity between candidate history and JD | N/A |
-| **Career Relevance** | 35% | Exact matching of domain (Search, Ranking, RecSys) | Low relevance caps score |
+| **Semantic Alignment** | 30% | Cosine similarity between candidate history and JD | N/A |
+| **Career Relevance** | 40% | Exact matching of domain (Search, Ranking, RecSys) | Low relevance caps score |
 | **Production Experience** | 20% | Scale, tools, and production environment terms | N/A |
-| **Behavioral Signals** | 15% | Evidence of continuous contribution (e.g. GitHub) | N/A |
 | **Availability** | 10% | Notice period and immediate start viability | N/A |
+| **Behavioral Signals** | Multiplier | Evidence of continuous contribution (e.g. GitHub) | N/A |
 | **Buzzword Penalty** | Variable | Flags GenAI keyword stuffing | -100 if Career Score < 20 |
 
 ## Repository Structure

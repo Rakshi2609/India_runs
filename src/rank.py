@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--candidates", default="isnt/candidates.jsonl")
     parser.add_argument("--jd", default="isnt/job_description.docx")
     parser.add_argument("--validator", default="isnt/validate_submission.py")
-    parser.add_argument("--out", default="submission.csv")
+    parser.add_argument("--out", default="tanushbhootra576.csv")
     parser.add_argument("--limit", type=int, default=1000)
     args = parser.parse_args()
 
@@ -191,7 +191,16 @@ def main():
             "reasoning": reasoning
         })
 
-    # 3. DETERMINISTIC SORTING & TIE-BREAKING
+    # 3. DETERMINISTIC SORTING & NORMALIZATION
+    if final_results:
+        max_score = max(r["score"] for r in final_results)
+        min_score = min(r["score"] for r in final_results)
+        for r in final_results:
+            if max_score > min_score:
+                r["score"] = (r["score"] - min_score) / (max_score - min_score)
+            else:
+                r["score"] = 0.5
+
     final_results.sort(key=lambda x: (-x["score"], x["candidate_id"]))
     top_100 = final_results[:100]
 

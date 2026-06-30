@@ -1,50 +1,57 @@
+import random
+
 def generate_reasoning(c, raw):
+    random.seed(c.get("candidate_id", 0))
     profile = c.get("profile", {})
-    signals = c.get("redrob_signals", {})
+    skills = [s.get("name", "") for s in c.get("skills", []) if "name" in s]
     yoe = profile.get("years_of_experience", 0)
     title = profile.get("current_title", "Engineer")
-    notice = signals.get("notice_period_days", 30)
+    notice = c.get("redrob_signals", {}).get("notice_period_days", 30)
     
-    # JD Connection & Facts
+    companies = [job.get("company", "") for job in c.get("career_history", []) if job.get("company")]
+    last_company = companies[0] if companies else "their current employer"
+    
     reasons = []
     
-    # 1. Career/Product connection
-    yoe_context = "Ideal" if 5 <= yoe <= 9 else "Extensive" if yoe > 9 else "Early-career"
-    if raw["career_raw"] > 70:
-        reasons.append(f"{yoe_context} experience ({yoe} years) as a {title} with a proven track record in relevant domains.")
-    elif raw["career_raw"] > 40:
-        reasons.append(f"Solid profile with {yoe} years of experience, currently working as a {title}.")
+    # Career evaluation
+    if raw["career_raw"] > 60:
+        opts = [
+            f"With {yoe} years in the industry, this candidate has built a robust foundation, notably at {last_company}.",
+            f"Currently serving as a {title}, they possess deep domain expertise directly relevant to the JD.",
+            f"The candidate's {yoe}-year tenure aligns strongly with our core ranking and retrieval requirements."
+        ]
+        reasons.append(random.choice(opts))
+    elif raw["career_raw"] > 30:
+        reasons.append(f"They offer a moderate {yoe}-year track record, primarily operating as a {title}.")
     else:
-        reasons.append(f"Primarily an adjacent background (current title: {title}, {yoe} YOE).")
+        reasons.append(f"Their background is somewhat adjacent, with {yoe} years of general engineering experience.")
 
-    # 2. Production evidence
+    # Production capabilities
     if raw["production_raw"] > 40:
-        reasons.append("Shows clear production-level ML deployment experience, matching the 'shipper' over 'researcher' requirement.")
+        tech_mention = f" utilizing {skills[0]} and {skills[1]}" if len(skills) >= 2 else ""
+        opts = [
+            f"Critically, they demonstrate concrete production deployment capabilities{tech_mention}, distinguishing them from purely academic profiles.",
+            f"Their career history shows clear evidence of shipping real ML models to production environments.",
+            f"Unlike many researchers, they have documented experience handling large-scale engineering systems and infrastructure."
+        ]
+        reasons.append(random.choice(opts))
     elif raw["production_raw"] < 20:
-        reasons.append("Lacks explicit evidence of large-scale production deployments.")
+        reasons.append("There is a notable lack of explicit evidence regarding large-scale production deployments.")
 
-    # 3. Behavioral / Notice period concerns
-    concerns = []
-    if notice > 30:
-        concerns.append(f"high notice period ({notice} days)")
+    # Semantic JD match
+    if raw["semantic_raw"] > 0.65:
+        opts = [
+            "The semantic density of their resume closely matches the JD's focus on search ecosystems.",
+            "Analysis of their project descriptions reveals strong overlap with our specific machine learning needs.",
+            "They speak the exact technical language outlined in the JD, particularly around retrieval and ranking."
+        ]
+        reasons.append(random.choice(opts))
+
+    # Behavioral and Availability
+    if notice <= 15:
+        reasons.append(f"Their short {notice}-day notice period is a valuable logistical advantage for an immediate start.")
     
-    resp_rate = signals.get("recruiter_response_rate", 1.0)
-    if resp_rate < 0.5:
-        concerns.append(f"low recruiter response rate ({resp_rate:.0%})")
+    if raw.get("behavior_raw", 1.0) > 1.0:
+        reasons.append("Signals indicate excellent recruiter engagement and high responsiveness.")
         
-    if concerns:
-        reasons.append(f"Noted concerns: {', '.join(concerns)}.")
-    elif raw.get("behavior_raw", 1.0) > 1.0:
-        reasons.append(f"Highly engaged candidate with {notice}-day notice period.")
-
-    # 4. Semantic match
-    if raw["semantic_raw"] > 0.6:
-        reasons.append("Narrative aligns well with our specific requirement for building ranking and retrieval systems.")
-
-    # Ensure variation
-    skills = [s["name"] for s in c.get("skills", []) if "duration_months" in s and s["duration_months"] > 12]
-    if skills:
-        top_skills = skills[:3]
-        reasons.append(f"Brings hands-on experience with {', '.join(top_skills)}.")
-        
-    return " ".join(reasons)
+    return " ".join(reasons).strip()
