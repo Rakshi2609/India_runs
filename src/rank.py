@@ -95,18 +95,18 @@ def main():
         base_h = (0.40 * c_norms[i] + 0.20 * p_norms[i] + 0.10 * a_norms[i]) * item["behavior_raw"] * item["hp_mult"] - item["penalty"]
         
         if item["career_raw"] < 0:
-            base_h -= 500
+            base_h -= 50
         elif item["career_raw"] < 20:
-            base_h -= 200
+            base_h -= 20
             
         if item["production_raw"] < 20:
-            base_h -= 300  # JD says production experience is absolutely required
+            base_h -= 30  # JD says production experience is absolutely required
             
         yoe = item["candidate"].get("profile", {}).get("years_of_experience", 0)
         if yoe > 12:
-            base_h -= 100  # Heavy penalty for being too senior (likely architect)
+            base_h -= 10  # Heavy penalty for being too senior (likely architect)
         elif yoe < 4:
-            base_h -= 100  # Heavy penalty for being too junior
+            base_h -= 10  # Heavy penalty for being too junior
             
         item["pre_score"] = base_h
         
@@ -160,18 +160,18 @@ def main():
         final_score -= item["penalty"]
         
         if item["career_raw"] < 0:
-            final_score -= 500
+            final_score -= 50
         elif item["career_raw"] < 20:
-            final_score -= 200
+            final_score -= 20
             
         if item["production_raw"] < 20:
-            final_score -= 300
+            final_score -= 30
             
         yoe = item["candidate"].get("profile", {}).get("years_of_experience", 0)
         if yoe > 12:
-            final_score -= 100
+            final_score -= 10
         elif yoe < 4:
-            final_score -= 100
+            final_score -= 10
             
         raw = {
             "candidate_id": item["candidate"]["candidate_id"],

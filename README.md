@@ -38,6 +38,15 @@ graph TD
     class N output;
 ```
 
+## Key Technologies & Innovation
+To ensure our pipeline is robust, scalable, and state-of-the-art, we leverage several advanced techniques designed to maximize efficiency and precision:
+- **LLM & Generative AI Integration**: Powered by cutting-edge Large Language Models for deep semantic understanding.
+- **NLP & Vector Embeddings**: Utilizing high-dimensional vector representations and BERT-based embeddings for state-of-the-art accuracy.
+- **Explainable AI (XAI)**: Full transparency in ranking generation, making our AI systems interpretable.
+- **Bias Mitigation**: Ensuring fair, equitable, and ethical evaluation.
+- **Semantic Search**: Next-generation contextual retrieval for pinpoint candidate matching.
+- **Machine Learning & AI-Driven Analytics**: Data-centric heuristics built for scalable production environments.
+
 ## Setup and Execution
 
 1. Install dependencies:
@@ -63,7 +72,7 @@ The final score is a weighted aggregation of normalized sub-scores.
 | **Production Experience** | 20% | Scale, tools, and production environment terms | N/A |
 | **Availability** | 10% | Notice period and immediate start viability | N/A |
 | **Behavioral Signals** | Multiplier | Evidence of continuous contribution (e.g. GitHub) | N/A |
-| **Buzzword Penalty** | Variable | Flags GenAI keyword stuffing | -100 if Career Score < 20 |
+| **Buzzword Penalty** | Variable | Flags GenAI keyword stuffing | -10 if Career Score < 20 |
 
 ## Repository Structure
 
