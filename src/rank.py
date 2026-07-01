@@ -34,7 +34,7 @@ def main():
     parser.add_argument("--jd", default="isnt/job_description.docx")
     parser.add_argument("--validator", default="isnt/validate_submission.py")
     parser.add_argument("--out", default="tanushbhootra576.csv")
-    parser.add_argument("--limit", type=int, default=1000)
+    parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
 
     print("Loading model...")
@@ -44,7 +44,7 @@ def main():
     jd_text = extract_jd_text(args.jd)
     jd_embedding = model.encode(jd_text, normalize_embeddings=True)
 
-    print(f"Loading up to {args.limit} candidates from {args.candidates}...")
+    print(f"Loading candidates from {args.candidates}...")
     candidates = []
     honeypot_count = 0
     with open(args.candidates, "r", encoding="utf-8") as f:
@@ -112,24 +112,36 @@ def main():
         
     heuristic_scores.sort(key=lambda x: x["pre_score"], reverse=True)
     
-    # Take top 5000 candidates for semantic matching
-    top_candidates = heuristic_scores[:5000]
+    # Use all candidates for semantic matching
+    top_candidates = heuristic_scores
     
-    print(f"Building texts for {len(top_candidates)} candidates...")
-    skills_texts = []
-    exp_texts = []
-    for item in top_candidates:
-        c = item["candidate"]
-        skills_texts.append(" ".join([s.get("name", "") for s in c.get("skills", [])]))
-        e_text = []
-        for job in c.get("career_history", []):
-            e_text.append(job.get("title", ""))
-            e_text.append(job.get("description", ""))
-        exp_texts.append("\n".join(e_text))
+    print(f"Loading precomputed candidate embeddings from embeddings.npy...")
+    import numpy as np
     
-    print("Encoding candidates skills and experience...")
-    skills_embeddings = model.encode(skills_texts, batch_size=128, show_progress_bar=True, normalize_embeddings=True)
-    exp_embeddings = model.encode(exp_texts, batch_size=128, show_progress_bar=True, normalize_embeddings=True)
+    try:
+        embeddings_data = np.load("embeddings.npy", allow_pickle=True).item()
+        candidate_id_to_idx = {cid: idx for idx, cid in enumerate(embeddings_data["candidate_ids"])}
+        
+        skills_embeddings = []
+        exp_embeddings = []
+        
+        for item in top_candidates:
+            cid = item["candidate"]["candidate_id"]
+            if cid in candidate_id_to_idx:
+                idx = candidate_id_to_idx[cid]
+                skills_embeddings.append(embeddings_data["skills_embeddings"][idx])
+                exp_embeddings.append(embeddings_data["exp_embeddings"][idx])
+            else:
+                # Fallback for missing candidates (shouldn't happen if precomputed properly)
+                skills_embeddings.append(np.zeros(384))
+                exp_embeddings.append(np.zeros(384))
+                
+        skills_embeddings = np.array(skills_embeddings)
+        exp_embeddings = np.array(exp_embeddings)
+        
+    except FileNotFoundError:
+        print("ERROR: embeddings.npy not found! Please run precompute_embeddings.py first.")
+        raise
     
     print("Calculating final scores and reasoning...")
     final_results = []
