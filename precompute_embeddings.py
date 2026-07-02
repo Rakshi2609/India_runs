@@ -1,14 +1,21 @@
+import argparse
 import json
 import numpy as np
+import torch
 from sentence_transformers import SentenceTransformer
 
 def main():
-    print("Loading model...")
-    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--candidates", default="isnt/candidates.jsonl")
+    args = parser.parse_args()
+
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Loading model on {device}...")
+    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
     
-    print("Loading candidates...")
+    print(f"Loading candidates from {args.candidates}...")
     candidates = []
-    with open(r"D:\isnt\candidates.jsonl", "r", encoding="utf-8") as f:
+    with open(args.candidates, "r", encoding="utf-8") as f:
         for line in f:
             if not line.strip():
                 continue
