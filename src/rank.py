@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--candidates", default="isnt/candidates.jsonl")
     parser.add_argument("--jd", default="isnt/job_description.docx")
     parser.add_argument("--validator", default="isnt/validate_submission.py")
-    parser.add_argument("--out", default="tanushbhootra576.csv")
+    parser.add_argument("--out", default="submission.csv")
     parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
 
@@ -95,18 +95,18 @@ def main():
         base_h = (0.40 * c_norms[i] + 0.20 * p_norms[i] + 0.10 * a_norms[i]) * item["behavior_raw"] * item["hp_mult"] - item["penalty"]
         
         if item["career_raw"] < 0:
-            base_h -= 50
+            base_h -= 500
         elif item["career_raw"] < 20:
-            base_h -= 20
+            base_h -= 200
             
         if item["production_raw"] < 20:
-            base_h -= 30  # JD says production experience is absolutely required
+            base_h -= 300  # JD says production experience is absolutely required
             
         yoe = item["candidate"].get("profile", {}).get("years_of_experience", 0)
         if yoe > 12:
-            base_h -= 10  # Heavy penalty for being too senior (likely architect)
+            base_h -= 100  # Heavy penalty for being too senior (likely architect)
         elif yoe < 4:
-            base_h -= 10  # Heavy penalty for being too junior
+            base_h -= 100  # Heavy penalty for being too junior
             
         item["pre_score"] = base_h
         
@@ -155,7 +155,7 @@ def main():
         
     sem_norms = normalize(sem_raw_values)
     
-    # We also need to re-normalize the other scores for the top 5000 candidates to combine correctly with semantic
+    # We also need to re-normalize the other scores for the top candidates to combine correctly with semantic
     c_norms_top = normalize([x["career_raw"] for x in top_candidates])
     p_norms_top = normalize([x["production_raw"] for x in top_candidates])
     a_norms_top = normalize([x["availability_raw"] for x in top_candidates])
@@ -172,18 +172,18 @@ def main():
         final_score -= item["penalty"]
         
         if item["career_raw"] < 0:
-            final_score -= 50
+            final_score -= 500
         elif item["career_raw"] < 20:
-            final_score -= 20
+            final_score -= 200
             
         if item["production_raw"] < 20:
-            final_score -= 30
+            final_score -= 300
             
         yoe = item["candidate"].get("profile", {}).get("years_of_experience", 0)
         if yoe > 12:
-            final_score -= 10
+            final_score -= 100
         elif yoe < 4:
-            final_score -= 10
+            final_score -= 100
             
         raw = {
             "candidate_id": item["candidate"]["candidate_id"],
@@ -213,7 +213,7 @@ def main():
             else:
                 r["score"] = 0.5
 
-    final_results.sort(key=lambda x: (-x["score"], x["candidate_id"]))
+    final_results.sort(key=lambda x: (-round(x["score"], 4), x["candidate_id"]))
     top_100 = final_results[:100]
 
     # Write CSV with exact format
