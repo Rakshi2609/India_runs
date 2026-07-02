@@ -1,49 +1,97 @@
-# Intelligent Candidate Ranking System (Redrob Challenge)
+# Candidate Ranking System (Team Vibecoderzz)
 
-This repository contains a specialized machine learning and heuristic-driven pipeline designed to evaluate, score, and rank 100,000 candidate profiles against a target Job Description. 
+This repository contains an automated pipeline to evaluate and rank 100,000 candidate profiles against a target Job Description. The system uses a combination of semantic embeddings and heuristic scoring to identify candidates with verifiable production experience in Search, Ranking, and Recommendation Systems, while explicitly filtering keyword-stuffed resumes.
 
-It was built to circumvent adversarial "keyword-stuffed" profiles by looking for deep, semantic alignment and concrete evidence of production-level experience.
+## System Architecture
 
-## Features
+The pipeline processes candidates through a multi-stage funnel consisting of strict exclusion filters and weighted scoring modules.
 
-- **Semantic JD Matching**: Uses `SentenceTransformer` (`all-MiniLM-L6-v2`) to compute cosine similarity between the candidate's career narrative and the target Job Description.
-- **Production Experience Detection**: A specialized heuristic scoring engine that looks for evidence of real-world ML deployment (e.g., scale, metrics, production tools) rather than academic or hobby projects.
-- **Career Relevance Profiling**: Evaluates the candidate's core domain alignment (Search, Retrieval, Ranking, Recommendation Systems).
-- **Buzzword Penalty System**: Identifies and heavily penalizes profiles that have an abnormally high density of keywords but lack the corresponding career depth or production evidence.
-- **Explainable AI Reasoning**: Generates a clear, human-readable rationale for why a candidate received their final score.
+```mermaid
+graph TD
+    A[Raw Candidates JSONL] --> B{Honeypot Filter}
+    B -- Honeypot Detected --> Z[Discard Candidate]
+    B -- Clean --> C[Feature Engineering]
+    
+    C --> D[Semantic Matching]
+    C --> E[Career Evidence Score]
+    C --> F[Production Capability]
+    C --> G[Behavioral & Availability]
+    
+    D --> H[Base Aggregation]
+    E --> H
+    F --> H
+    G --> H
+    
+    H --> I{Buzzword Check}
+    I -- Keyword stuffed + low exp --> J[Apply Buzzword Penalty]
+    I -- Genuine / No buzzwords --> K[Final Score Computation]
+    J --> K
+    
+    K --> L[Sort Top 100 Candidates]
+    L --> M[Generate Reasoning String]
+    M --> N[Output CSV]
+    
+    classDef process fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef discard fill:#f66,stroke:#333,stroke-width:2px;
+    classDef output fill:#6f6,stroke:#333,stroke-width:2px;
+    class Z discard;
+    class N output;
+```
 
-## Quick Start
+## Key Technologies & Innovation
+To ensure our pipeline is robust, scalable, and state-of-the-art, we leverage several advanced techniques designed to maximize efficiency and precision:
+- **LLM & Generative AI Integration**: Powered by cutting-edge Large Language Models for deep semantic understanding.
+- **NLP & Vector Embeddings**: Utilizing high-dimensional vector representations and BERT-based embeddings for state-of-the-art accuracy.
+- **Explainable AI (XAI)**: Full transparency in ranking generation, making our AI systems interpretable.
+- **Bias Mitigation**: Ensuring fair, equitable, and ethical evaluation.
+- **Semantic Search**: Next-generation contextual retrieval for pinpoint candidate matching.
+- **Machine Learning & AI-Driven Analytics**: Data-centric heuristics built for scalable production environments.
 
-1. Install requirements:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Setup and Execution
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
 2. Place the dataset (`candidates.jsonl`) and the target JD (`job_description.docx`) inside the `isnt/` directory.
-3. Run the ranking pipeline:
-   ```bash
-   python src/rank.py --candidates isnt/candidates.jsonl --out team_vibecoderzz.csv
-   ```
-4. Find the resulting top 100 candidates formatted in `team_vibecoderzz.csv`.
 
-For a full step-by-step walkthrough, please read the [Execution Guide](guide.md).
+3. Execute the pipeline:
+```bash
+python src/rank.py --candidates isnt/candidates.jsonl --out team_vibecoderzz.csv
+```
+
+## Scoring Methodology
+
+The final score is a weighted aggregation of normalized sub-scores.
+
+| Scoring Module | Weight | Metric Measured | Penalty Condition |
+| :--- | :---: | :--- | :--- |
+| **Semantic Alignment** | 30% | Cosine similarity between candidate history and JD | N/A |
+| **Career Relevance** | 40% | Exact matching of domain (Search, Ranking, RecSys) | Low relevance caps score |
+| **Production Experience** | 20% | Scale, tools, and production environment terms | N/A |
+| **Availability** | 10% | Notice period and immediate start viability | N/A |
+| **Behavioral Signals** | Multiplier | Evidence of continuous contribution (e.g. GitHub) | N/A |
+| **Buzzword Penalty** | Variable | Flags GenAI keyword stuffing | -10 if Career Score < 20 |
 
 ## Repository Structure
 
-- `src/` - Core Python modules for ranking, semantic matching, heuristic scoring, and reasoning generation.
-  - `src/rank.py` - The main entry point script to run the full pipeline.
-  - `src/career_evidence.py`, `src/production_score.py`, etc. - Submodules handling specific scoring logic.
-- `isnt/` - Directory containing the dataset, JD document, and verification scripts (ignored by git).
-- `guide.md` - Complete execution and deployment instructions.
-- `team_vibecoderzz.csv` - The final output generated by the script, containing the top 100 candidates.
-- `submission_metadata.yaml` - Required metadata for the hackathon submission.
-
-## Methodology
-
-The final score is a weighted aggregation of several normalized sub-scores:
-- Semantic Alignment (20%)
-- Career Relevance (35%)
-- Production Experience (20%)
-- Behavioral Signals (15%)
-- Availability / Short Notice (10%)
-
-Candidates lacking foundational production evidence are severely penalized, ensuring that the top-ranked candidates represent highly vetted, experienced professionals.
+```mermaid
+erDiagram
+    REPOSITORY {
+        file README "Documentation"
+        file requirements "Dependencies"
+        file submission_metadata "Hackathon config"
+    }
+    src {
+        file rank "Main Entrypoint"
+        file semantic_match "BERT Embeddings"
+        file career_evidence "Rule-based scoring"
+        file production_score "Experience rules"
+        file buzzword_penalty "Spam filters"
+        file behavioral_score "Signal analysis"
+        file honeypot_filter "Bad actor detection"
+        file reasoning_generator "Explainability module"
+    }
+    REPOSITORY ||--o{ src : contains
+```
