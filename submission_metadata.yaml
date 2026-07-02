@@ -1,20 +1,20 @@
 # Redrob Hackathon - Submission Metadata
-team_name: "tanushbhootra576"
+team_name: "VibeCoderZZ"
 
 primary_contact:
-  name: "Tanush Bhootra"
-  email: "tanushbhootra576@example.com"
-  phone: "+91-9999999999"
+  name: "Rakshith Ganjimut"
+  email: "rakshithganjimut@gmail.com"
+  phone: "+91-866 067 7696"
 
 team_members:
   - name: "Tanush Bhootra"
-    email: "tanushbhootra576@example.com"
+    email: "bhootratanushbhootra@gmail.com"
     role: "ML Engineer"
 
-github_repo: "https://github.com/tanushbhootra576/India_runs"
-sandbox_link: "https://github.com/tanushbhootra576/India_runs/blob/main/sandbox.ipynb"
+github_repo: "https://github.com/Rakshi2609/India_runs"
+sandbox_link: "https://github.com/Rakshi2609/India_runs/blob/main/sandbox.ipynb"
 
-reproduce_command: "python src/rank.py --candidates isnt/candidates.jsonl --out tanushbhootra576.csv"
+reproduce_command: "python src/rank.py --candidates isnt/candidates.jsonl --out team_vibecoderzz.csv"
 
 compute:
   platform: "Local Windows Box"
