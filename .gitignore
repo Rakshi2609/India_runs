@@ -4,7 +4,6 @@ node_modules/
 .pnp.js
 venv/
 env/
-.env
 .venv/
 __pycache__/
 *.pyc
@@ -20,7 +19,6 @@ out/
 .DS_Store
 Thumbs.db
 .idea/
-.vscode/
 *.suo
 *.ntvs*
 *.njsproj
@@ -44,3 +42,4 @@ data/
 # Hackathon specific
 isnt/
 *.csv
+config.bat
