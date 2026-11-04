@@ -42,3 +42,4 @@ data/
 # Hackathon specific
 isnt/
 *.csv
+config.bat
